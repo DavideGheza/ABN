@@ -1,0 +1,210 @@
+---
+title: "ABN_demographic_and_clinical_data"
+author: "Davide Gheza"
+date: "10 juli 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r, SETTINGS-knitr, include=FALSE}
+stopifnot(require(knitr))
+options(width = 90)
+opts_chunk$set(
+  cache = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+Load required packages:
+```{r, cache=FALSE}
+library(brms)
+theme_set(theme_default())
+
+library(tidyverse)
+```
+
+## Load data 
+
+Load the data:
+```{r}
+rm(list=ls())   # clear all!
+wd <- ("C:/Users/gdavide/Documents/MATLAB/dg_workspace/Final_reanalysis_2017/results/Behavioral and clinical - HC vs MDDT1 - 34 sbj/")
+setwd(wd) # set work directory
+ABN <- read.csv2("CORRECTED clinical merged Chris Jasmina - HC vs MDDT1 34 - for mixed model.csv",header=TRUE,na.strings="NaN") # read data
+
+#head(ABN)
+
+```
+
+Prepare data
+
+```{r}
+
+names(ABN)[names(ABN)=='HDRS_T1'] = 'HDRS'                               # HDRS_T1 (Time 1) renamed as HDRS
+names(ABN)[names(ABN)=='gr'] = 'group'                                   # gr renamed as group
+
+ABN$group = factor(ABN$group, 
+                labels=c("HC", "MDD"))                                   # group as factor, change labels
+
+ABN = ABN %>%     mutate(snG = paste0(ABN$group, ABN$no))                # group-dependent coding for sbj
+
+ABN = ABN %>%     mutate(snG = as.factor(ABN$snG)) %>%                   # snG variable as factor
+                  filter(theta.analysis.filter.T1 == "1")                # remove empty rows
+
+
+```
+
+
+# plot age
+
+
+```{r}
+
+
+ABN %>%
+  ggplot(aes(x = group, y = age)) +
+  geom_point() +
+  geom_violin(mapping = NULL, data = NULL, stat = "ydensity",
+            position = "dodge", draw_quantiles = NULL, trim = TRUE,
+            scale = "area", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) +
+  stat_summary(fun.y=mean, geom="point", shape=15, size=5, color="red") +
+  geom_jitter(shape=16, position=position_jitter(0.02), size=2) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+```
+
+# plot BDI II
+
+```{r}
+
+
+
+ABN %>%
+  ggplot(aes(x = group, y = BDI)) +
+  geom_point() +
+  geom_violin(mapping = NULL, data = NULL, stat = "ydensity",
+            position = "dodge", draw_quantiles = NULL, trim = TRUE,
+            scale = "area", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) +
+  stat_summary(fun.y=mean, geom="point", shape=15, size=5, color="red") +
+  geom_jitter(shape=16, position=position_jitter(0.02), size=2) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+# box plot
+
+ABN %>%
+  ggplot(aes(x = group, y = BDI)) +
+  geom_boxplot() +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+
+```
+# plot BDI II _ anhedonia
+
+```{r}
+
+
+
+ABN %>%
+  ggplot(aes(x = group, y = BDI_anhedonia)) +
+  geom_point() +
+  geom_violin(mapping = NULL, data = NULL, stat = "ydensity",
+            position = "dodge", draw_quantiles = NULL, trim = TRUE,
+            scale = "area", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) +
+  stat_summary(fun.y=mean, geom="point", shape=15, size=5, color="red") +
+  geom_jitter(shape=16, position=position_jitter(0.02), size=2) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+# box plot
+
+ABN %>%
+  ggplot(aes(x = group, y = BDI_anhedonia)) +
+  geom_boxplot() +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+```
+
+# plot HAM D
+
+```{r}
+
+
+ABN %>%
+  ggplot(aes(x = group, y = HDRS)) +
+  geom_point() +
+  geom_violin(mapping = NULL, data = NULL, stat = "ydensity",
+            position = "dodge", draw_quantiles = NULL, trim = TRUE,
+            scale = "area", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) +
+  stat_summary(fun.y=mean, geom="point", shape=15, size=5, color="red") +
+  geom_jitter(shape=16, position=position_jitter(0.02), size=2) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+# box plot
+
+ABN %>%
+  ggplot(aes(x = group, y = HDRS)) +
+  geom_boxplot() +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+```
+
+# plot SHAPS
+
+```{r}
+
+
+
+ABN %>%
+  ggplot(aes(x = group, y = SHAPS)) +
+  geom_point() +
+  geom_violin(mapping = NULL, data = NULL, stat = "ydensity",
+            position = "dodge", draw_quantiles = NULL, trim = TRUE,
+            scale = "area", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) +
+  stat_summary(fun.y=mean, geom="point", shape=15, size=5, color="red") +
+  geom_jitter(shape=16, position=position_jitter(0.02), size=2) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+# box plot
+
+ABN %>%
+  ggplot(aes(x = group, y = SHAPS)) +
+  geom_boxplot() +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+```
+
+# plot TEPS
+
+```{r}
+
+
+
+ABN %>%
+  ggplot(aes(x = group, y = TEPS)) +
+  geom_point() +
+  geom_violin(mapping = NULL, data = NULL, stat = "ydensity",
+            position = "dodge", draw_quantiles = NULL, trim = TRUE,
+            scale = "area", na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) +
+  stat_summary(fun.y=mean, geom="point", shape=15, size=5, color="red") +
+  geom_jitter(shape=16, position=position_jitter(0.02), size=2) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+ABN %>%
+  ggplot(aes(x = group, y = TEPS)) +
+  geom_boxplot() +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16))
+
+
+```

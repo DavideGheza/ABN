@@ -1,0 +1,157 @@
+---
+title: "ABN - correlations"
+author: "Davide Gheza"
+date: "16 september 2018"
+output: html_document
+---
+
+```{r, SETTINGS-knitr, include=FALSE}
+stopifnot(require(knitr))
+options(width = 90)
+opts_chunk$set(
+  cache = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+Load required packages:
+```{r, cache=FALSE}
+library(brms)
+theme_set(theme_default())
+
+library(tidyverse)
+```
+
+## Load data 
+
+Load the data:
+```{r}
+rm(list=ls())   # clear all!
+wd <- ("C:/Users/gdavide/Documents/MATLAB/dg_workspace/Final_reanalysis_2017/results/")
+setwd(wd) # set work directory
+ABN <- read.csv2("CORRECTED - ALL RESULTS - HC vs MDDT1 - 34 matched - induced 3-7 Hz _ clinical _ normalized Alpha power.csv",header=TRUE,na.strings="NaN") # read data
+
+#head(ABN)
+
+```
+
+
+
+```{r}
+
+names(ABN)[names(ABN)=='HDRS_T1'] = 'HDRS'                               # HDRS_T1 (Time 1) renamed as HDRS
+
+ABN$group = factor(ABN$group, 
+                labels=c("HC", "MDD"))                                   # group as factor, change labels
+
+ABN = ABN %>%     mutate(snG = paste0(ABN$group, ABN$no))                # group-dependent coding for sbj
+
+ABN = ABN %>%     mutate(snG = as.factor(ABN$snG))                       # snG variable as factor
+             
+
+
+```
+
+
+# plot 
+
+
+```{r}
+
+theme_set(theme_classic())
+
+ABN %>%
+  ggplot(aes(x = T.fb.inc.80, y = F3, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="FMT inc. 80% vs. alpha F3\n", x = "FMT power (dB)", y = "Z scores")
+
+ABN %>%
+  ggplot(aes(x = T.fb.inc.80, y = F4, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="FMT inc. 80% vs. alpha F4\n", x = "FMT power (dB)", y = "Z scores")
+
+
+
+ABN %>%
+  ggplot(aes(x = BDI, y = F3, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="BDI vs. alpha F3\n", x = "BDI", y = "Z scores")
+
+
+ABN %>%
+  ggplot(aes(x = BDI_anhedonia, y = F3, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="BDI_anedonia vs. alpha F3\n", x = "BDI_aned", y = "Z scores")
+
+ABN %>%
+  ggplot(aes(x = HDRS, y = F3, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="HDRS vs. alpha F3\n", x = "HDRS", y = "Z scores")
+
+
+ABN %>%
+  ggplot(aes(x = BDI, y = T.fb.inc.80, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="BDI vs. FMT inc. 80%\n", x = "BDI", y = "FMT power (dB)")
+
+ABN %>%
+  ggplot(aes(x = BDI_anhedonia, y = T.fb.inc.80, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="BDI_anedonia vs. FMT inc. 80%\n", x = "BDI_aned", y = "FMT power (dB)")
+
+
+ABN %>%
+  ggplot(aes(x = TEPS, y = T.fb.inc.80, color=group)) +
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE, aes(fill=group)) +
+  theme(axis.text = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size=14),
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 16)) +
+  labs(title="TEPS vs. FMT inc. 80%\n", x = "TEPS", y = "FMT power (dB)")
+```
